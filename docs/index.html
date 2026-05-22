@@ -1,1 +1,137 @@
-<h1>TV APP FUNCIONANDO</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TV EN VIVO</title>
+
+<style>
+
+body{
+    background:#111;
+    color:white;
+    font-family:Arial;
+    margin:0;
+}
+
+h1{
+    text-align:center;
+    padding:15px;
+}
+
+#channels{
+    padding:10px;
+}
+
+.channel{
+    background:#222;
+    margin-bottom:10px;
+    padding:15px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.channel:hover{
+    background:#333;
+}
+
+video{
+    width:100%;
+    background:black;
+}
+
+iframe{
+    width:100%;
+    height:250px;
+    border:none;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>TV EN VIVO</h1>
+
+<div id="player"></div>
+
+<div id="channels"></div>
+
+<script>
+
+const API = "https://ofutbol.jdoxx.com/api/shedule/UOLWyiSt6WI1ngmppPVHLi8ERLxTml";
+
+fetch(API, {
+
+    headers: {
+        "Accept": "application/json"
+    }
+
+})
+.then(r => r.json())
+.then(data => {
+
+    console.log(data);
+
+    const channels = document.getElementById("channels");
+
+    if(Array.isArray(data)){
+
+        data.forEach(ch => {
+
+            const div = document.createElement("div");
+
+            div.className = "channel";
+
+            div.innerHTML = `
+                <b>${ch.name || 'Canal'}</b>
+            `;
+
+            div.onclick = () => {
+
+                console.log(ch);
+
+                if(ch.url){
+
+                    document.getElementById("player").innerHTML = `
+                        <video controls autoplay src="${ch.url}"></video>
+                    `;
+
+                }
+
+                else if(ch.embed){
+
+                    document.getElementById("player").innerHTML = `
+                        <iframe src="${ch.embed}" allowfullscreen></iframe>
+                    `;
+
+                }
+
+            };
+
+            channels.appendChild(div);
+
+        });
+
+    } else {
+
+        channels.innerHTML = `
+            <pre>${JSON.stringify(data,null,2)}</pre>
+        `;
+
+    }
+
+})
+.catch(err => {
+
+    document.body.innerHTML += `
+        <pre>${err}</pre>
+    `;
+
+});
+
+</script>
+
+</body>
+</html>
