@@ -21,7 +21,7 @@ header{
     background:#000;
     padding:15px;
     text-align:center;
-    font-size:22px;
+    font-size:26px;
     font-weight:bold;
 }
 
@@ -30,15 +30,9 @@ header{
     background:black;
 }
 
-video{
-    width:100%;
-    height:auto;
-    background:black;
-}
-
 iframe{
     width:100%;
-    height:250px;
+    height:240px;
     border:none;
 }
 
@@ -48,20 +42,30 @@ iframe{
 
 .channel{
     background:#222;
-    padding:15px;
-    border-radius:10px;
     margin-bottom:10px;
+    border-radius:10px;
+    overflow:hidden;
     cursor:pointer;
-    transition:0.2s;
 }
 
-.channel:hover{
-    background:#333;
+.channel img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
 }
 
-.loading{
-    text-align:center;
-    padding:20px;
+.info{
+    padding:12px;
+}
+
+.name{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.type{
+    color:#aaa;
+    margin-top:5px;
 }
 
 </style>
@@ -76,11 +80,7 @@ TV EN VIVO
 
 <div id="player"></div>
 
-<div id="channels">
-<div class="loading">
-Cargando canales...
-</div>
-</div>
+<div id="channels"></div>
 
 <script>
 
@@ -88,88 +88,87 @@ const API = "https://ofutbol.jdoxx.com/api/shedule/UOLWyiSt6WI1ngmppPVHLi8ERLxTm
 
 fetch(API)
 
-.then(response => response.json())
+.then(r => r.json())
 
 .then(data => {
 
     console.log(data);
 
-    const channelsDiv = document.getElementById("channels");
+    const channels = data.shedule;
 
-    channelsDiv.innerHTML = "";
+    const container = document.getElementById("channels");
 
-    if(Array.isArray(data)){
+    container.innerHTML = "";
 
-        data.forEach(channel => {
+    channels.forEach(ch => {
 
-            const div = document.createElement("div");
+        const div = document.createElement("div");
 
-            div.className = "channel";
+        div.className = "channel";
 
-            div.innerHTML = `
-                📺 ${channel.name || "Canal"}
-            `;
+        div.innerHTML = `
 
-            div.onclick = () => {
+            <img src="${ch.photo}" />
 
-                console.log(channel);
+            <div class="info">
 
-                if(channel.url){
+                <div class="name">
+                    ${ch.name}
+                </div>
 
-                    document.getElementById("player").innerHTML = `
-                        <video
-                            src="${channel.url}"
-                            controls
-                            autoplay
-                        ></video>
-                    `;
+                <div class="type">
+                    ${ch.type}
+                </div>
 
-                }
+            </div>
 
-                else if(channel.embed){
-
-                    document.getElementById("player").innerHTML = `
-                        <iframe
-                            src="${channel.embed}"
-                            allowfullscreen
-                        ></iframe>
-                    `;
-
-                }
-
-                else{
-
-                    alert("No se encontró stream");
-
-                }
-
-            };
-
-            channelsDiv.appendChild(div);
-
-        });
-
-    }
-
-    else{
-
-        channelsDiv.innerHTML = `
-            <pre style="white-space:pre-wrap;color:red;">
-${JSON.stringify(data,null,2)}
-            </pre>
         `;
 
-    }
+        div.onclick = () => {
+
+            let url = "";
+
+            if(ch.play["player-1"]){
+
+                url = ch.play["player-1"];
+
+            }
+
+            else if(ch.play["player-2"]){
+
+                url = ch.play["player-2"];
+
+            }
+
+            if(url){
+
+                document.getElementById("player").innerHTML = `
+
+                    <iframe
+                        src="${url}"
+                        allowfullscreen
+                        allow="autoplay; fullscreen"
+                    ></iframe>
+
+                `;
+
+                window.scrollTo(0,0);
+
+            }
+
+        };
+
+        container.appendChild(div);
+
+    });
 
 })
 
-.catch(error => {
-
-    console.log(error);
+.catch(err => {
 
     document.getElementById("channels").innerHTML = `
         <pre style="color:red;">
-${error}
+${err}
         </pre>
     `;
 
@@ -178,4 +177,5 @@ ${error}
 </script>
 
 </body>
+
 </html>
