@@ -28,6 +28,7 @@ header{
     z-index:1000;
 
     background:#000;
+
     padding:15px;
 
     box-shadow:0 2px 10px rgba(0,0,0,0.5);
@@ -37,8 +38,11 @@ header{
 .title{
 
     text-align:center;
+
     font-size:28px;
+
     font-weight:bold;
+
     margin-bottom:15px;
 
 }
@@ -46,12 +50,15 @@ header{
 #search{
 
     width:100%;
+
     padding:14px;
 
     border:none;
+
     border-radius:10px;
 
     background:#222;
+
     color:white;
 
     font-size:16px;
@@ -61,15 +68,8 @@ header{
 #player{
 
     width:100%;
+
     background:black;
-
-}
-
-#player iframe{
-
-    width:100%;
-    height:240px;
-    border:none;
 
 }
 
@@ -108,6 +108,7 @@ header{
 .channel img{
 
     width:100%;
+
     height:190px;
 
     object-fit:cover;
@@ -123,6 +124,7 @@ header{
 .name{
 
     font-size:18px;
+
     font-weight:bold;
 
 }
@@ -130,6 +132,7 @@ header{
 .type{
 
     margin-top:8px;
+
     color:#aaa;
 
 }
@@ -155,6 +158,7 @@ header{
 .loading{
 
     text-align:center;
+
     padding:30px;
 
 }
@@ -162,6 +166,7 @@ header{
 .error{
 
     color:red;
+
     padding:20px;
 
 }
@@ -169,21 +174,26 @@ header{
 #fullscreenBtn{
 
     position:absolute;
+
     top:10px;
+
     right:10px;
 
     z-index:1000;
 
     background:red;
+
     color:white;
 
     border:none;
 
-    padding:10px 14px;
+    padding:10px 15px;
 
     border-radius:8px;
 
     font-weight:bold;
+
+    font-size:16px;
 
 }
 
@@ -192,7 +202,9 @@ header{
     #channels{
 
         display:grid;
+
         grid-template-columns:repeat(2,1fr);
+
         gap:15px;
 
     }
@@ -304,6 +316,7 @@ function loadAPI(){
             JSON.stringify({
 
                 time: Date.now(),
+
                 data: canalesGlobal
 
             })
@@ -390,19 +403,37 @@ function renderChannels(lista){
 
                 document.getElementById("player").innerHTML = `
 
-                    <div style="position:relative;">
+                    <div id="videoContainer"
+
+                        style="
+                            position:relative;
+                            width:100%;
+                            background:black;
+                        "
+
+                    >
 
                         <button id="fullscreenBtn">
-                            FULL
+                            ⛶ FULL
                         </button>
 
                         <iframe
                             id="tvFrame"
                             src="${link}"
+
                             allowfullscreen
                             webkitallowfullscreen
                             mozallowfullscreen
+
                             allow="autoplay; fullscreen"
+
+                            style="
+                                width:100%;
+                                height:80vh;
+                                border:none;
+                                background:black;
+                            "
+
                         ></iframe>
 
                     </div>
@@ -413,25 +444,25 @@ function renderChannels(lista){
 
                     const btn = document.getElementById("fullscreenBtn");
 
-                    const iframe = document.getElementById("tvFrame");
+                    const container = document.getElementById("videoContainer");
 
                     btn.onclick = () => {
 
-                        if(iframe.requestFullscreen){
+                        if(container.requestFullscreen){
 
-                            iframe.requestFullscreen();
-
-                        }
-
-                        else if(iframe.webkitRequestFullscreen){
-
-                            iframe.webkitRequestFullscreen();
+                            container.requestFullscreen();
 
                         }
 
-                        else if(iframe.msRequestFullscreen){
+                        else if(container.webkitRequestFullscreen){
 
-                            iframe.msRequestFullscreen();
+                            container.webkitRequestFullscreen();
+
+                        }
+
+                        else if(container.msRequestFullscreen){
+
+                            container.msRequestFullscreen();
 
                         }
 
@@ -442,6 +473,7 @@ function renderChannels(lista){
                 window.scrollTo({
 
                     top:0,
+
                     behavior:"smooth"
 
                 });
