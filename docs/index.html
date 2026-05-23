@@ -35,10 +35,12 @@ header{
 }
 
 .title{
+
     text-align:center;
     font-size:28px;
     font-weight:bold;
     margin-bottom:15px;
+
 }
 
 #search{
@@ -164,6 +166,27 @@ header{
 
 }
 
+#fullscreenBtn{
+
+    position:absolute;
+    top:10px;
+    right:10px;
+
+    z-index:1000;
+
+    background:red;
+    color:white;
+
+    border:none;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    font-weight:bold;
+
+}
+
 @media(min-width:700px){
 
     #channels{
@@ -210,47 +233,100 @@ header{
 
 const API = "https://ofutbol.jdoxx.com/api/shedule/WY8TRnVGbHO0BatBG2N6yNPYt8RYi6";
 
+const CACHE_KEY = "tv_channels_cache";
+
+const CACHE_TIME = 5 * 60 * 1000;
+
 let canalesGlobal = [];
 
-fetch(API)
+const cache = localStorage.getItem(CACHE_KEY);
 
-.then(res => res.json())
+if(cache){
 
-.then(data => {
+    const parsed = JSON.parse(cache);
 
-    console.log(data);
+    const now = Date.now();
 
-    const container = document.getElementById("channels");
+    if(now - parsed.time < CACHE_TIME){
 
-    if(!data.shedule){
+        console.log("Usando cache");
 
-        container.innerHTML = `
-            <div class="error">
-                No se encontraron canales.
-            </div>
-        `;
+        canalesGlobal = parsed.data;
 
-        return;
+        renderChannels(canalesGlobal);
 
     }
 
-    canalesGlobal = data.shedule;
+    else{
 
-    renderChannels(canalesGlobal);
+        loadAPI();
 
-})
+    }
 
-.catch(error => {
+}
 
-    console.log(error);
+else{
 
-    document.getElementById("channels").innerHTML = `
-        <div class="error">
-            ${error}
-        </div>
-    `;
+    loadAPI();
 
-});
+}
+
+function loadAPI(){
+
+    fetch(API)
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        console.log(data);
+
+        const container = document.getElementById("channels");
+
+        if(!data.shedule){
+
+            container.innerHTML = `
+                <div class="error">
+                    No se encontraron canales.
+                </div>
+            `;
+
+            return;
+
+        }
+
+        canalesGlobal = data.shedule;
+
+        localStorage.setItem(
+
+            CACHE_KEY,
+
+            JSON.stringify({
+
+                time: Date.now(),
+                data: canalesGlobal
+
+            })
+
+        );
+
+        renderChannels(canalesGlobal);
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+
+        document.getElementById("channels").innerHTML = `
+            <div class="error">
+                ${error}
+            </div>
+        `;
+
+    });
+
+}
 
 function renderChannels(lista){
 
@@ -314,15 +390,54 @@ function renderChannels(lista){
 
                 document.getElementById("player").innerHTML = `
 
-                    <iframe
-                        src="${link}"
-                        allowfullscreen
-                        webkitallowfullscreen
-                        mozallowfullscreen
-                        allow="autoplay; fullscreen"
-                    ></iframe>
+                    <div style="position:relative;">
+
+                        <button id="fullscreenBtn">
+                            FULL
+                        </button>
+
+                        <iframe
+                            id="tvFrame"
+                            src="${link}"
+                            allowfullscreen
+                            webkitallowfullscreen
+                            mozallowfullscreen
+                            allow="autoplay; fullscreen"
+                        ></iframe>
+
+                    </div>
 
                 `;
+
+                setTimeout(() => {
+
+                    const btn = document.getElementById("fullscreenBtn");
+
+                    const iframe = document.getElementById("tvFrame");
+
+                    btn.onclick = () => {
+
+                        if(iframe.requestFullscreen){
+
+                            iframe.requestFullscreen();
+
+                        }
+
+                        else if(iframe.webkitRequestFullscreen){
+
+                            iframe.webkitRequestFullscreen();
+
+                        }
+
+                        else if(iframe.msRequestFullscreen){
+
+                            iframe.msRequestFullscreen();
+
+                        }
+
+                    };
+
+                }, 500);
 
                 window.scrollTo({
 
